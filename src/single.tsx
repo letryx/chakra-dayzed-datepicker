@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Input,
   Popover,
@@ -64,10 +64,9 @@ export const SingleDatepicker: React.FC<SingleDatepickerProps> = ({
       return;
     }
   };
-
   const onBlur = () => {
     const parsedDate = parse(typedValue, configs.dateFormat, date);
-    if (parsedDate instanceof Date && !isNaN(parsedDate.getTime())) {
+    if (parsedDate instanceof Date && !isNaN(parsedDate.getTime()) && parsedDate.getTime() !== date.getTime()) {
       onDateChange(parsedDate);
       setTypedValue(format(parsedDate, configs.dateFormat));
       setPopoverOpen(false);
@@ -76,6 +75,14 @@ export const SingleDatepicker: React.FC<SingleDatepickerProps> = ({
     // Bad, so go back to what was there before.
     setTypedValue(format(date, configs.dateFormat));
   };
+
+  useEffect(() => {
+    if (!popoverOpen) {
+      onBlur();
+    }
+  }, [popoverOpen]);
+
+  const onSubmit = onBlur;
 
   const dayzedData = useDayzed({
     showOutsideDays: true,
@@ -93,24 +100,20 @@ export const SingleDatepicker: React.FC<SingleDatepickerProps> = ({
       isLazy
     >
       <PopoverTrigger>
-        <Input
-          id={id}
-          autoComplete="off"
-          isDisabled={disabled}
-          ref={initialFocusRef}
-          onClick={() => setPopoverOpen(!popoverOpen)}
-          name={name}
-          value={typedValue}
-          onChange={(e) => setTypedValue(e.target.value)}
-          onBlur={onBlur}
-          onSubmit={onBlur}
-          onKeyPress={e=> {
-            if (e.key === 'Enter') {
-              onBlur()
-            }
-         }}
-          {...propsConfigs?.inputProps}
-        />
+        <form onSubmit={onSubmit}>
+          <Input
+            id={id}
+            autoComplete="off"
+            isDisabled={disabled}
+            ref={initialFocusRef}
+            onClick={() => setPopoverOpen(!popoverOpen)}
+            name={name}
+            value={typedValue}
+            onChange={(e) => setTypedValue(e.target.value)}
+            onSubmit={onSubmit}
+            {...propsConfigs?.inputProps}
+          />
+        </form>
       </PopoverTrigger>
       <PopoverContent ref={ref} width="100%">
         <PopoverBody>
