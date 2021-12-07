@@ -8,7 +8,7 @@ import {
   useOutsideClick,
 } from '@chakra-ui/react';
 import { useDayzed } from 'dayzed';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { Month_Names_Short, Weekday_Names_Short } from './utils/calanderUtils';
 import { CalendarPanel } from './components/calendarPanel';
 import {
@@ -50,14 +50,31 @@ export const SingleDatepicker: React.FC<SingleDatepickerProps> = ({
     handler: () => setPopoverOpen(false),
   });
 
+  const [typedValue, setTypedValue] = useState(
+    format(date, configs.dateFormat)
+  );
+
   // dayzed utils
   const handleOnDateSelected: OnDateSelected = ({ selectable, date }) => {
     if (!selectable) return;
     if (date instanceof Date && !isNaN(date.getTime())) {
       onDateChange(date);
+      setTypedValue(format(date, configs.dateFormat));
       setPopoverOpen(false);
       return;
     }
+  };
+
+  const onBlur = () => {
+    const parsedDate = parse(typedValue, configs.dateFormat, date);
+    if (parsedDate instanceof Date && !isNaN(parsedDate.getTime())) {
+      onDateChange(parsedDate);
+      setTypedValue(format(parsedDate, configs.dateFormat));
+      setPopoverOpen(false);
+      return;
+    }
+    // Bad, so go back to what was there before.
+    setTypedValue(format(date, configs.dateFormat));
   };
 
   const dayzedData = useDayzed({
@@ -83,8 +100,9 @@ export const SingleDatepicker: React.FC<SingleDatepickerProps> = ({
           ref={initialFocusRef}
           onClick={() => setPopoverOpen(!popoverOpen)}
           name={name}
-          value={format(date, configs.dateFormat)}
-          onChange={(e) => e.target.value}
+          value={typedValue}
+          onChange={(e) => setTypedValue(e.target.value)}
+          onBlur={onBlur}
           {...propsConfigs?.inputProps}
         />
       </PopoverTrigger>
