@@ -80,6 +80,7 @@ export const SingleDatepicker: React.FC<SingleDatepickerProps> = ({
   const dayzedData = useDayzed({
     showOutsideDays: true,
     onDateSelected: handleOnDateSelected,
+    date,
     selected: date,
   });
 
@@ -103,6 +104,7 @@ export const SingleDatepicker: React.FC<SingleDatepickerProps> = ({
           value={typedValue}
           onChange={(e) => setTypedValue(e.target.value)}
           onBlur={onBlur}
+          onSubmit={onBlur}
           {...propsConfigs?.inputProps}
         />
       </PopoverTrigger>
