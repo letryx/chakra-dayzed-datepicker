@@ -68,6 +68,7 @@ export const SingleDatepicker: React.FC<SingleDatepickerProps> = ({
     if (typedValue !== format(date, configs.dateFormat)) {
       const parsedDate = parse(typedValue, configs.dateFormat, date);
       if (parsedDate instanceof Date && !isNaN(parsedDate.getTime()) && parsedDate.getTime() !== date.getTime()) {
+        console.log(`${parsedDate.getTime()} vs ${date.getTime()}`);
         onDateChange(parsedDate);
         setTypedValue(format(parsedDate, configs.dateFormat));
         setPopoverOpen(false);
